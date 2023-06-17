@@ -25,14 +25,13 @@ Delta 2 device is the only supported for now. Extending support is planned
 ```
 import asyncio
 import bleak
-import ecoflow
-from ecoflow import OutputCircuit
+from ecoflow import Delta2, OutputCircuit
 
 
 async def main():
     mac = "00:00:00:00:00:01"
     ble_client = bleak.BleakClient(mac, timeout=15)
-    async with ecoflow.Delta2(ble_client) as dev:
+    async with Delta2(ble_client) as dev:
         await dev.turn_on_circuit(OutputCircuit.USB)
         await dev.turn_off_circuit(OutputCircuit.AC)
 
