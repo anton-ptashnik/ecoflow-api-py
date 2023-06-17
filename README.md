@@ -1,4 +1,7 @@
 # Ecoflow Python API
+
+[![Test](https://github.com/anton-ptashnik/ecoflow-api-py/actions/workflows/test.yml/badge.svg)](https://github.com/anton-ptashnik/ecoflow-api-py/actions/workflows/test.yml)
+
 Python library for communicating with Ecoflow power stations over BLE, based on bleak.
 
 ## Supported features
