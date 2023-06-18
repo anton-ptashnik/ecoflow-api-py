@@ -3,6 +3,7 @@ Delta 2 power station API
 """
 
 import logging
+import asyncio
 import struct
 from collections import namedtuple
 
@@ -94,7 +95,7 @@ class StateDataParser:
         Receive state notification data as raw bytes and parses into a dict with state fields
         """
         pages = self._split_pages(bytes(data))
-        state_fleids = {}
+        state_fields = {}
         for page in pages:
             page_code = self._page_code(page)
             try:
@@ -103,9 +104,12 @@ class StateDataParser:
             except:
                 LOGGER.exception("could not parse a page %s. Data: %s", page_code, page)
                 parsed_page = {}
-            state_fleids.update(parsed_page)
+            state_fields.update(parsed_page)
 
-        self.callback(state_fleids)
+        if asyncio.iscoroutinefunction(self.callback):
+            asyncio.create_task(self.callback(state_fields))
+        else:
+            self.callback(state_fields)
 
     def _split_pages(self, data):
         pages = []

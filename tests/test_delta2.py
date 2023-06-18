@@ -1,3 +1,4 @@
+import asyncio
 from unittest.mock import AsyncMock
 import struct
 import pytest
@@ -5,6 +6,7 @@ import bleak
 from ecoflow import Delta2
 from ecoflow.common import StateField, OutputCircuit
 
+STATE_CHAR_HANDLE = 0x2b
 
 @pytest.fixture
 def ble_client():
@@ -69,7 +71,6 @@ async def test_circuit_control_usb(ble_client: AsyncMock):
 
 @pytest.mark.asyncio
 async def test_state_notifications(ble_client: AsyncMock):
-    STATE_CHAR_HANDLE = 0x2b
     state_data = {}
     def save_state_data_cb(data):
         nonlocal state_data
@@ -118,6 +119,27 @@ async def test_state_notifications(ble_client: AsyncMock):
     await dev.stop_state_stream()
     ble_client.stop_notify.assert_called_with(STATE_CHAR_HANDLE)
 
+
+@pytest.mark.asyncio
+async def test_state_notifications_async_cb(ble_client: AsyncMock):
+    q = asyncio.Queue()
+    async def save_state_data_cb(data):
+        await q.put(data)
+    
+    dev = Delta2(ble_client)
+    src = FakeNotificationsSource()
+    ble_client.start_notify.side_effect = src.register
+
+    await dev.start_state_stream(save_state_data_cb)
+    ble_client.start_notify.assert_called_with(STATE_CHAR_HANDLE, src.send)
+
+    page_0x85 = [0xaa, 0x2, 0x85] + [0]*150
+    charge_level = 55
+    page_0x85[30] = charge_level
+
+    src.send(STATE_CHAR_HANDLE, page_0x85)
+    state_data = await asyncio.wait_for(q.get(), timeout=2)
+    assert state_data[StateField.CHARGE_LEVEL] == charge_level
 
 class FakeNotificationsSource:
     """
