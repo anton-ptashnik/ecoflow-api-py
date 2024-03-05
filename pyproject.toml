@@ -21,4 +21,5 @@ test = [
 ]
 
 [project.urls]
-Home = "https://github.com/anton-ptashnik/ecoflow-api-py"
+Documentation = "https://github.com/anton-ptashnik/ecoflow-api-py"
+Source = "https://github.com/anton-ptashnik/ecoflow-api-py"
