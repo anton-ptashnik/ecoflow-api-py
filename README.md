@@ -5,6 +5,10 @@
 
 Python library for communicating with Ecoflow power stations over BLE, based on bleak.
 
+## Not maintained for now
+
+_Ecoflow does not provide official BLE API, so making this lib possible requires extra reverse engineering efforts. It does not give enough ROI for me so archiving the project._
+
 ## Supported features
 
 Delta 2 device is the only supported for now. Extending support is planned
